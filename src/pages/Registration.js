@@ -1,6 +1,41 @@
-import React from "react";
-
+import React, { useEffect, useState } from "react";
+import Input from "../components/Input";
+import Label from "../components/label";
+import { useNavigate } from "react-router-dom";
 const Registration = () => {
+  // useEffect(
+
+  // ,[])
+  const toDashboard = useNavigate();
+  const [userInput, setUserInput] = useState({
+    email: "",
+    mobile: "",
+    projects: "",
+    photo: null,
+    gender: "",
+    password: "",
+    confirm_pass: "",
+    agree: false,
+  });
+
+  const inputHandler = (e) => {
+    let input = e.target;
+    setUserInput((prevInput) => {
+      return {
+        ...prevInput,
+        [input.name]: input.value,
+      };
+    });
+  };
+
+  const submitHandler = (e) => {
+    e.preventDefault();
+
+    let usersData = userInput;
+    console.log(usersData);
+    toDashboard("/dashboard");
+  };
+
   return (
     <>
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
@@ -13,57 +48,144 @@ const Registration = () => {
           <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
             Welcome!
           </h2>
-          <h3 className="mt-2 text-center text-xl font-bold leading-6 tracking-tight text-gray-900" >Register in your account</h3>
+          <h3 className="mt-2 text-center text-xl font-bold leading-6 tracking-tight text-gray-900">
+            Register in your account
+          </h3>
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form className="space-y-6" action="#" method="POST">
+          <form
+            className="space-y-6"
+            action="#"
+            onSubmit={submitHandler}
+            method="POST"
+          >
             <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium leading-6 text-gray-900"
-              >
-                Email address
-              </label>
-              <div className="mt-2">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  className="block p-2 w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              <Label labelFor="email">Email address</Label>
+              <Input
+                input="email"
+                onChange={(event) => inputHandler(event)}
+                type="email"
+                autoComplete="email"
+              />
+            </div>
+
+            <div className="flex flex-row">
+              <div>
+                <Label labelFor="mobile">Mobile Number</Label>
+                <Input
+                  input="mobile"
+                  onChange={(event) => inputHandler(event)}
+                  name="mobile"
+                  type="tel"
                 />
+              </div>
+
+              <div className="ml-2">
+                <Label labelFor="projects">Projects</Label>
+                <div className="mt-2">
+                  <select
+                    name="projects"
+                    className="block p-2 w-full h-9 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    id="projects"
+                    onChange={(event) => inputHandler(event)}
+                  >
+                    <option value="volvo">Volvo</option>
+                    <option value="saab">Saab</option>
+                    <option value="mercedes">Mercedes</option>
+                    <option value="audi">Audi</option>
+                  </select>
+                </div>
               </div>
             </div>
 
-            <div>
-              <div className="flex items-center justify-between">
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  Password
-                </label>
-                {/* <div className="text-sm">
-                  <a
-                    href="#"
-                    className="font-semibold text-indigo-600 hover:text-indigo-500"
-                  >
-                    Forgot password?
-                  </a>
-                </div> */}
-              </div>
-              <div className="mt-2">
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  className="block p-2 w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+            <div className="flex flex-row justify-start">
+              <div className="">
+                <Label labelFor="photo">Photo</Label>
+                <Input
+                  input="photo"
+                  onChange={(event) => inputHandler(event)}
+                  type="file"
+                  className="w-[80%]"
                 />
               </div>
+              <div className="">
+                <legend className="block text-sm font-medium leading-6 text-gray-900">
+                  Gender
+                </legend>
+                <div className="flex flex-row mt-3">
+                  <Label labelFor="male" className=" ml-2">
+                    Male
+                  </Label>
+                  <div className="mt-0.5 ml-2">
+                    <input
+                      id="male"
+                      name="gender"
+                      value="male"
+                      type="radio"
+                      autoComplete=""
+                      required
+                      onChange={(event) => inputHandler(event)}
+                      className="w-4 h-4"
+                    />
+                  </div>
+                  <Label labelFor="female" className=" ml-2">
+                    Female
+                  </Label>
+                  <div className="mt-0.5 ml-2">
+                    <input
+                      id="female"
+                      name="gender"
+                      type="radio"
+                      value="female"
+                      onChange={(event) => inputHandler(event)}
+                      autoComplete=""
+                      required
+                      className="w-4 h-4"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-row">
+              <div>
+                <div className="flex items-center justify-between">
+                  <Label labelFor="password">Password</Label>
+                </div>
+                <Input
+                  input="password"
+                  onChange={(event) => inputHandler(event)}
+                  inputDivClass="mr-2"
+                  type="password"
+                />
+              </div>
+              <div>
+                <div className="flex items-center justify-between">
+                  <Label labelFor="confirm_pass">Confirm Password</Label>
+                </div>
+                <Input
+                  input="confirm_pass"
+                  type="password"
+                  onChange={(event) => inputHandler(event)}
+                  autoComplete="current-password"
+                />
+              </div>
+            </div>
+            <div className="flex flex-row">
+              <div className="mt-0.5 ml-2">
+                <input
+                  id="agree"
+                  name="agree"
+                  type="checkbox"
+                  onChange={(event) => inputHandler(event)}
+                  autoComplete=""
+                  required
+                  className="w-4 h-4"
+                />
+              </div>
+              <Label labelFor="agree" className="ml-2">
+                I accept the terms and conditions.
+              </Label>
             </div>
 
             <div>
@@ -75,16 +197,6 @@ const Registration = () => {
               </button>
             </div>
           </form>
-
-          {/* <p className="mt-10 text-center text-sm text-gray-500">
-            Not a member?{" "}
-            <a
-              href="#"
-              className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500"
-            >
-              Start a 14 day free trial
-            </a>
-          </p> */}
         </div>
       </div>
     </>
