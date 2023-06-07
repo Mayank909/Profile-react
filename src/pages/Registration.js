@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Input from "../components/Input";
 import Label from "../components/label";
 import { useNavigate } from "react-router-dom";
 const Registration = () => {
-  // useEffect(
-
-  // ,[])
+  useEffect(() => {}, []);
+  const image = useRef();
+  // const imga = useRef();
   const toDashboard = useNavigate();
+  const [imageInput, setImageInput ] = useState()
   const [userInput, setUserInput] = useState({
     email: "",
     mobile: "",
@@ -20,6 +21,15 @@ const Registration = () => {
 
   const inputHandler = (e) => {
     let input = e.target;
+    if(input.name === 'photo'){
+      let fReader = new FileReader();
+    fReader.readAsDataURL(image.current.files[0]);
+    fReader.onloadend = function (event) {
+      // imga.current.src = event.target.result;
+      // console.log(imga)
+      setImageInput(event.target.result)
+    };
+  }
     setUserInput((prevInput) => {
       return {
         ...prevInput,
@@ -30,9 +40,23 @@ const Registration = () => {
 
   const submitHandler = (e) => {
     e.preventDefault();
-
-    let usersData = userInput;
-    console.log(usersData);
+    let userData = {
+      ...userInput,
+      photo: imageInput
+    }
+    console.log(userData)
+    fetch(
+      "https://profile-react-436pr-default-rtdb.firebaseio.com/users.json",
+      {
+        method: "POST",
+        body: JSON.stringify(userData),
+        headers: { "Content-Type": "application/json" },
+      }
+    )
+      .then((respose) => respose.json())
+      .then((result) => {
+        console.log(result);
+      });
     toDashboard("/dashboard");
   };
 
@@ -77,7 +101,7 @@ const Registration = () => {
                   input="mobile"
                   onChange={(event) => inputHandler(event)}
                   name="mobile"
-                  type="tel"
+                  type="number"
                 />
               </div>
 
@@ -90,6 +114,7 @@ const Registration = () => {
                     id="projects"
                     onChange={(event) => inputHandler(event)}
                   >
+                    <option value="select">--Select--</option>
                     <option value="volvo">Volvo</option>
                     <option value="saab">Saab</option>
                     <option value="mercedes">Mercedes</option>
@@ -104,10 +129,13 @@ const Registration = () => {
                 <Label labelFor="photo">Photo</Label>
                 <Input
                   input="photo"
+                  accept="image/*"
+                  ref={image}
                   onChange={(event) => inputHandler(event)}
                   type="file"
                   className="w-[80%]"
                 />
+                {/* <img ref={imga} src="" width='200px' height="200px" /> */}
               </div>
               <div className="">
                 <legend className="block text-sm font-medium leading-6 text-gray-900">

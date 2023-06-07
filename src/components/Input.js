@@ -1,13 +1,15 @@
 import React from "react";
 
-function Input(props) {
+const Input = React.forwardRef((props, ref) => {
   return (
     <React.Fragment>
       <div className={`mt-2 ${props.inputDivClass}`}>
         <input
           id={props.input}
           name={props.input}
+          accept={props.accept}
           type={props.type}
+          ref={ref}
           autoComplete={props.autoComplete}
           onChange={props.onChange}
           value={props.value}
@@ -17,6 +19,6 @@ function Input(props) {
       </div>
     </React.Fragment>
   );
-}
+})
 
 export default Input;
