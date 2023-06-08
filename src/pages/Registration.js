@@ -7,7 +7,9 @@ const Registration = () => {
   const image = useRef();
   // const imga = useRef();
   const toDashboard = useNavigate();
-  const [imageInput, setImageInput ] = useState()
+  const [invalidPass, setInvalidPass] = useState(false);
+  const [mobileInvalid, setMobileInvalid] = useState(false);
+  const [imageInput, setImageInput] = useState();
   const [userInput, setUserInput] = useState({
     email: "",
     mobile: "",
@@ -21,15 +23,19 @@ const Registration = () => {
 
   const inputHandler = (e) => {
     let input = e.target;
-    if(input.name === 'photo'){
+    if (input.name === "photo") {
       let fReader = new FileReader();
-    fReader.readAsDataURL(image.current.files[0]);
-    fReader.onloadend = function (event) {
-      // imga.current.src = event.target.result;
-      // console.log(imga)
-      setImageInput(event.target.result)
-    };
-  }
+      fReader.readAsDataURL(image.current.files[0]);
+      fReader.onloadend = function (event) {
+        // imga.current.src = event.target.result;
+        // console.log(imga)
+        setImageInput(event.target.result);
+      };
+    }
+    if (input.name === "mobile")
+      input.value.match(/^[9876][\d]{9}$/)
+        ? setMobileInvalid(false)
+        : setMobileInvalid(true);
     setUserInput((prevInput) => {
       return {
         ...prevInput,
@@ -40,24 +46,31 @@ const Registration = () => {
 
   const submitHandler = (e) => {
     e.preventDefault();
-    let userData = {
-      ...userInput,
-      photo: imageInput
+    if (userInput.password === userInput.confirm_pass) {
+      setInvalidPass(false);
+      if(!mobileInvalid) {
+      let userData = {
+        ...userInput,
+        photo: imageInput,
+      };
+      console.log(userData);
+      fetch(
+        "https://profile-react-436pr-default-rtdb.firebaseio.com/users.json",
+        {
+          method: "POST",
+          body: JSON.stringify(userData),
+          headers: { "Content-Type": "application/json" },
+        }
+      )
+        .then((respose) => respose.json())
+        .then((result) => {
+          console.log(result);
+        });
+      toDashboard("/dashboard");
     }
-    console.log(userData)
-    fetch(
-      "https://profile-react-436pr-default-rtdb.firebaseio.com/users.json",
-      {
-        method: "POST",
-        body: JSON.stringify(userData),
-        headers: { "Content-Type": "application/json" },
-      }
-    )
-      .then((respose) => respose.json())
-      .then((result) => {
-        console.log(result);
-      });
-    toDashboard("/dashboard");
+    } else {
+      setInvalidPass(true);
+    }
   };
 
   return (
@@ -100,8 +113,9 @@ const Registration = () => {
                 <Input
                   input="mobile"
                   onChange={(event) => inputHandler(event)}
+                  className={mobileInvalid && "border-2 border-rose-600"}
                   name="mobile"
-                  type="number"
+                  type="tel"
                 />
               </div>
 
@@ -193,6 +207,7 @@ const Registration = () => {
                 </div>
                 <Input
                   input="confirm_pass"
+                  className={invalidPass && "border-2 border-red-600"}
                   type="password"
                   onChange={(event) => inputHandler(event)}
                   autoComplete="current-password"
