@@ -1,16 +1,20 @@
 import React, { useEffect, useState, useRef } from "react";
+import storage  from "../firebaseConfig";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import Input from "../components/Input";
 import Label from "../components/label";
 import { useNavigate } from "react-router-dom";
+
 const Registration = () => {
   useEffect(() => {}, []);
   const image = useRef();
   // const imga = useRef();
   const toDashboard = useNavigate();
+  const [file, setFile] = useState("");
   const [invalidPass, setInvalidPass] = useState(false);
   const [mobileInvalid, setMobileInvalid] = useState(false);
-  const [imageInput, setImageInput] = useState();
   const [userInput, setUserInput] = useState({
+    name: "",
     email: "",
     mobile: "",
     projects: "",
@@ -24,13 +28,9 @@ const Registration = () => {
   const inputHandler = (e) => {
     let input = e.target;
     if (input.name === "photo") {
-      let fReader = new FileReader();
-      fReader.readAsDataURL(image.current.files[0]);
-      fReader.onloadend = function (event) {
-        // imga.current.src = event.target.result;
-        // console.log(imga)
-        setImageInput(event.target.result);
-      };
+
+      console.log(input.files[0])
+      setFile(input.files[0]);
     }
     if (input.name === "mobile")
       input.value.match(/^[9876][\d]{9}$/)
@@ -44,21 +44,34 @@ const Registration = () => {
     });
   };
 
-  const submitHandler = (e) => {
+  const submitHandler = async (e) => {
     e.preventDefault();
     if (userInput.password === userInput.confirm_pass) {
       setInvalidPass(false);
-      if(!mobileInvalid) {
-      let userData = {
-        ...userInput,
-        photo: imageInput,
-      };
-      console.log(userData);
+      if (!mobileInvalid) {
+        const storageRef = ref(storage, `/files/${file.name}`);
+        await uploadBytesResumable(storageRef, file)
+        let imageUrl = ''
+        await getDownloadURL(storageRef)
+        .then((url) => {
+          imageUrl = url;
+        })
+        let userData = {
+          ...userInput,
+          photo: imageUrl,
+        };
+        console.log(userData);
+        await sendData(userData);
+      }
+    } else {
+      setInvalidPass(true);
+    }
+    function sendData(data) {
       fetch(
         "https://profile-react-436pr-default-rtdb.firebaseio.com/users.json",
         {
           method: "POST",
-          body: JSON.stringify(userData),
+          body: JSON.stringify(data),
           headers: { "Content-Type": "application/json" },
         }
       )
@@ -67,9 +80,6 @@ const Registration = () => {
           console.log(result);
         });
       toDashboard("/dashboard");
-    }
-    } else {
-      setInvalidPass(true);
     }
   };
 
@@ -97,14 +107,29 @@ const Registration = () => {
             onSubmit={submitHandler}
             method="POST"
           >
-            <div>
-              <Label labelFor="email">Email address</Label>
-              <Input
-                input="email"
-                onChange={(event) => inputHandler(event)}
-                type="email"
-                autoComplete="email"
-              />
+            <div className="flex flex-row">
+              <div>
+                <Label labelFor="name">Name</Label>
+                <Input
+                  input="name"
+                  onChange={(event) => inputHandler(event)}
+                  type="text"
+                  autoComplete="name"
+                />
+              </div>
+
+              <div>
+                <Label labelFor="email" className="ml-2">
+                  Email address
+                </Label>
+                <Input
+                  input="email"
+                  className="ml-2"
+                  onChange={(event) => inputHandler(event)}
+                  type="email"
+                  autoComplete="email"
+                />
+              </div>
             </div>
 
             <div className="flex flex-row">
