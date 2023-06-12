@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import storage from '../../firebaseConfig'
-import {
-  ref,
-  getDownloadURL,
-  deleteObject,
-} from "firebase/storage";
+import storage from "../../firebaseConfig";
+import { ref, getDownloadURL, deleteObject } from "firebase/storage";
+import checkbox from "../../Icons/checkbox.svg";
+import deleteIcon from "../../Icons/delete.svg";
+import { Link } from "react-router-dom";
 
 const Home = () => {
   const [loading, setLoading] = useState(false);
@@ -20,19 +19,18 @@ const Home = () => {
         projects: data[key].projects,
         gender: data[key].gender,
         mobile: data[key].mobile,
-        photo: data[key].photo
+        photo: data[key].photo,
       });
     }
     setItems(users);
-    for (const element of items ) {
-      let file = element.photo.split('/')
-      console.log(file)
-    const storageRef = ref(storage, `files/${file[1]}`);
-      getDownloadURL(storageRef)
-        .then((url) => {
-          element[`photo`] = url;
-          console.log(element.photo)
-        })
+    for (const element of items) {
+      let file = element.photo.split("/");
+      console.log(file);
+      const storageRef = ref(storage, `files/${file[1]}`);
+      getDownloadURL(storageRef).then((url) => {
+        element[`photo`] = url;
+        console.log(element.photo);
+      });
     }
     setLoading(false);
   }
@@ -70,7 +68,7 @@ const Home = () => {
           <tbody>
             {items.map((item) => {
               return (
-                <tr key={item.id} className="border-b-2 p-2">
+                <tr key={item.id} className="border-b-2 border-gray-500 p-2">
                   <td>
                     <div className="flex flex-row text-left px-2 m-2">
                       <img
@@ -91,13 +89,36 @@ const Home = () => {
                   <td>{item.projects}</td>
                   <td>{item.gender}</td>
                   <td>{item.mobile}</td>
-                  <td>edit/delete</td>
+                  <td className="pl-16">
+                    <div className="flex justify-evenly flex-col sm:mr-0 mr-20 sm:flex-row">
+                      <Link to="/">
+                      <button className="flex flex-row">
+                        <img
+                          src={checkbox}
+                          alt="o"
+                          className="h-4 w-4 mx-1 my-2"
+                        />
+                        <p className=" mt-1">Edit</p>
+                      </button>
+                      </Link>
+                      <button className="flex text-rose-600 flex-row">
+                        <img
+                          src={deleteIcon}
+                          alt="o"
+                          className="h-4 w-4 mx-1 my-2"
+                        />
+                        <p className=" mt-1">Delete</p>
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               );
             })}
           </tbody>
         </table>
-      ): <p className="text-center">Loading...</p>}
+      ) : (
+        <p className="text-center">Loading...</p>
+      )}
     </>
   );
 };
