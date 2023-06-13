@@ -12,7 +12,10 @@ const router = createBrowserRouter([
   {
     path: "/dashboard",
     element: <Dashboard />,
-    children: [{ path: "", element: <Home /> }],
+    children: [
+      { path: "", element: <Home /> },
+      { path: ":userId", element: <Registration /> },
+    ],
   },
   { path: "*", element: <Nopage /> },
 ]);

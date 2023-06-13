@@ -4,57 +4,47 @@ import { ref, getDownloadURL, deleteObject } from "firebase/storage";
 import checkbox from "../../Icons/checkbox.svg";
 import deleteIcon from "../../Icons/delete.svg";
 import { Link } from "react-router-dom";
+import useFetch  from "../../hooks/useFetch"
 
 const Home = () => {
-  const [loading, setLoading] = useState(false);
+  const { isLoading, error, sendRequest: fetchData } = useFetch();
+  // const [loading, setLoading] = useState(false);
   const [items, setItems] = useState([]);
 
-  function getData(data) {
-    const users = [];
-    for (const key in data) {
-      users.push({
-        id: key,
-        name: data[key].name,
-        email: data[key].email,
-        projects: data[key].projects,
-        gender: data[key].gender,
-        mobile: data[key].mobile,
-        photo: data[key].photo,
-      });
-    }
-    setItems(users);
-    for (const element of items) {
-      let file = element.photo.split("/");
-      console.log(file);
-      const storageRef = ref(storage, `files/${file[1]}`);
-      getDownloadURL(storageRef).then((url) => {
-        element[`photo`] = url;
-        console.log(element.photo);
-      });
-    }
-    setLoading(false);
-  }
   useEffect(() => {
-    try {
-      setLoading(true);
-      async function fetchData() {
-        const respose = await fetch(
-          "https://profile-react-436pr-default-rtdb.firebaseio.com/users.json"
-        );
-        if (!respose.ok) {
-          throw new Error("Something went wrong!");
-        }
-        const data = await respose.json();
-        getData(data);
+    function getData(data) {
+      const users = [];
+      for (const key in data) {
+        users.push({
+          id: key,
+          name: data[key].name,
+          email: data[key].email,
+          projects: data[key].projects,
+          gender: data[key].gender,
+          mobile: data[key].mobile,
+          photo: data[key].photo,
+        });
       }
-      fetchData();
-    } catch (e) {
-      alert(e);
+      setItems(users);
+      for (const element of items) {
+        let file = element.photo.split("/");
+        console.log(file);
+        const storageRef = ref(storage, `files/${file[1]}`);
+        getDownloadURL(storageRef).then((url) => {
+          element[`photo`] = url;
+          console.log(element.photo);
+        });
+      }
     }
-  }, []);
+    fetchData({ url: "https://profile-react-436pr-default-rtdb.firebaseio.com/users.json"}, getData); 
+    if(error) {
+      alert(error)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchData]);
   return (
     <>
-      {!loading ? (
+      {!isLoading ? (
         <table className="table-auto border-2 rounded-lg border-gray-600 text-center table w-full ">
           <thead className="table-header-group">
             <tr className="table-row border-b-2 border-gray-500">
@@ -91,7 +81,7 @@ const Home = () => {
                   <td>{item.mobile}</td>
                   <td className="pl-16">
                     <div className="flex justify-evenly flex-col sm:mr-0 mr-20 sm:flex-row">
-                      <Link to="/">
+                      <Link to={`${item.id}`}>
                       <button className="flex flex-row">
                         <img
                           src={checkbox}
