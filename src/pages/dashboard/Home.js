@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
 import storage from "../../firebaseConfig";
-import { ref, getDownloadURL, deleteObject } from "firebase/storage";
+import { ref, getDownloadURL, deleteObject} from "firebase/storage";
 import checkbox from "../../Icons/checkbox.svg";
 import deleteIcon from "../../Icons/delete.svg";
 import { Link } from "react-router-dom";
 import useFetch  from "../../hooks/useFetch"
+import useDelete  from "../../hooks/useDelete"
+
 
 const Home = () => {
   const { isLoading, error, sendRequest: fetchData } = useFetch();
+  const { deleteData: deleteUser } = useDelete();
   // const [loading, setLoading] = useState(false);
   const [items, setItems] = useState([]);
 
@@ -42,6 +45,20 @@ const Home = () => {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchData]);
+
+  const deleteData = (deleteItem)=>{
+    let deletedUser = items.filter((item)=> item.id === deleteItem)
+    // const [ userProfile ] = deletedUser
+    // console.log(userProfile.photo)
+    //   let pictureRef = storage.refFromURL(userProfile.photo);
+    //   console.log(pictureRef)
+    //   pictureRef.delete()
+    // deleteUser(deleteItem)
+      // Create a reference to the file to delete
+      deleteUser(deleteItem)
+    items.splice(items.indexOf(deletedUser), 1)
+  }
+
   return (
     <>
       {!isLoading ? (
@@ -91,7 +108,7 @@ const Home = () => {
                         <p className=" mt-1">Edit</p>
                       </button>
                       </Link>
-                      <button className="flex text-rose-600 flex-row">
+                      <button className="flex text-rose-600 flex-row" onClick={() => deleteData(item.id)}>
                         <img
                           src={deleteIcon}
                           alt="o"
