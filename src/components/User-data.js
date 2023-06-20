@@ -24,7 +24,7 @@ const UserData = (props) => {
   //   })
 
   const { isLoading, error, sendRequest: sendUserData } = useFetch();
-  useEffect(() => {}, []);
+  const [disabled, setDisabled] = useState(false);
   const image = useRef();
   const toDashboard = useNavigate();
   const [file, setFile] = useState("");
@@ -96,6 +96,7 @@ const UserData = (props) => {
     if (userInput.password === userInput.confirm_pass) {
       setInvalidPass(false);
       if (!mobileInvalid) {
+        setDisabled(!isLoading)
         const storageRef = ref(storage, `/files/${file.name}`);
         await uploadBytesResumable(storageRef, file);
         let imageUrl = "";
@@ -144,7 +145,7 @@ const UserData = (props) => {
   }
   return (
     <>
-      {!isLoading && (
+      {!isLoading ? (
         <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
           <div className="sm:mx-auto sm:w-full sm:max-w-sm">
             <img
@@ -274,7 +275,7 @@ const UserData = (props) => {
                         <input
                           id="male"
                           name="gender"
-                          value={userInput?.gender}
+                          value="male"
                           type="radio"
                           autoComplete=""
                           required
@@ -291,7 +292,7 @@ const UserData = (props) => {
                           id="female"
                           name="gender"
                           type="radio"
-                          value={userInput?.gender}
+                          value="female"
                           onChange={(event) => inputHandler(event)}
                           autoComplete=""
                           required
@@ -316,6 +317,7 @@ const UserData = (props) => {
                           name="gender"
                           type="radio"
                           autoComplete=""
+                          value="male"
                           required
                           onChange={(event) => inputHandler(event)}
                           className="w-4 h-4"
@@ -331,6 +333,7 @@ const UserData = (props) => {
                           type="radio"
                           onChange={(event) => inputHandler(event)}
                           autoComplete=""
+                          value="female"
                           required
                           className="w-4 h-4"
                         />
@@ -391,6 +394,7 @@ const UserData = (props) => {
               <div>
                 <button
                   type="submit"
+                  disabled={disabled}
                   className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 >
                   {params.userId ? "Update" : "Register"}
@@ -399,7 +403,7 @@ const UserData = (props) => {
             </form>
           </div>
         </div>
-      )}
+      ):<h1 className="text-center">Loading...</h1>}
     </>
   );
 };
